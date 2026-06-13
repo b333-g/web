@@ -53,10 +53,10 @@ export default function Footer() {
             className="font-display text-lg font-bold tracking-tight text-foreground flex items-center gap-1.5"
           >
             <span className="bg-gradient-to-r from-primary to-violet-400 bg-clip-text text-transparent">
-              Badri Gautam
+              BadriTech
             </span>
-            <span className="text-foreground/80 font-light text-xs px-1.5 py-0.5 rounded bg-primary/10 border border-primary/20">
-              Labs
+            <span className="text-foreground/80 font-light text-[10px] px-1.5 py-0.5 rounded bg-primary/10 border border-primary/20 animate-pulse">
+              Platform
             </span>
           </Link>
           <p className="text-xs text-muted-foreground max-w-sm font-light leading-relaxed">
@@ -143,7 +143,7 @@ export default function Footer() {
 
       <div className="max-w-7xl mx-auto px-6 mt-12 pt-6 border-t border-border/40 text-center">
         <p className="text-[10px] text-muted-foreground font-light">
-          &copy; {new Date().getFullYear()} Badri Gautam Labs. All rights reserved. Built with Next.js, Tailwind CSS and Framer Motion.
+          &copy; {new Date().getFullYear()} BadriTech Platform. All rights reserved. Built with Next.js, Tailwind CSS and Framer Motion.
         </p>
       </div>
     </footer>

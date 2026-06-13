@@ -6,17 +6,15 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sun, Moon, Menu, X } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
+import SearchDialog from "./SearchDialog";
 
 const navItems = [
   { path: "/", label: "Home" },
   { path: "/products", label: "Products" },
   { path: "/sdks", label: "SDKs" },
-  { path: "/developers", label: "Developer Portal" },
-  { path: "/documentation", label: "Docs" },
+  { path: "/documentation", label: "Documentation" },
   { path: "/downloads", label: "Downloads" },
-  { path: "/changelog", label: "Changelog" },
   { path: "/roadmap", label: "Roadmap" },
-  { path: "/about", label: "About" },
   { path: "/contact", label: "Contact" },
 ];
 
@@ -50,18 +48,18 @@ export default function Navbar() {
         {/* Logo */}
         <Link
           href="/"
-          className="font-display text-lg font-bold tracking-tight text-foreground flex items-center gap-1"
+          className="font-display text-lg font-bold tracking-tight text-foreground flex items-center gap-1.5"
         >
           <span className="bg-gradient-to-r from-primary to-violet-400 bg-clip-text text-transparent">
-            Badri Gautam
+            BadriTech
           </span>
-          <span className="text-foreground/80 font-light text-sm px-1.5 py-0.5 rounded-md bg-primary/10 border border-primary/20">
-            Labs
+          <span className="text-foreground/80 font-light text-xs px-1.5 py-0.5 rounded-md bg-primary/10 border border-primary/20 animate-pulse">
+            Platform
           </span>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden xl:flex items-center gap-5">
+        <nav className="hidden lg:flex items-center gap-5">
           <ul className="flex items-center gap-4">
             {navItems.map((item) => {
               const isActive = pathname === item.path;
@@ -89,6 +87,9 @@ export default function Navbar() {
 
           <div className="h-4 w-px bg-border" />
 
+          {/* Unified search command palette */}
+          <SearchDialog />
+
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
@@ -104,7 +105,10 @@ export default function Navbar() {
         </nav>
 
         {/* Mobile Navbar Controls */}
-        <div className="flex items-center gap-3 xl:hidden">
+        <div className="flex items-center gap-3 lg:hidden">
+          {/* Unified search command palette */}
+          <SearchDialog />
+
           <button
             onClick={toggleTheme}
             className="p-2 rounded-full hover:bg-muted text-foreground/80 hover:text-foreground transition-colors cursor-pointer"
@@ -135,7 +139,7 @@ export default function Navbar() {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="xl:hidden glass-navbar overflow-hidden border-t border-border mt-4"
+            className="lg:hidden glass-navbar overflow-hidden border-t border-border mt-4"
           >
             <nav className="max-w-6xl mx-auto px-6 py-6">
               <ul className="flex flex-col gap-5">

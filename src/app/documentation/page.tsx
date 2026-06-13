@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams, useRouter } from "next/navigation";
 import { 
   ArrowLeft, 
   Search, 
@@ -9,42 +10,176 @@ import {
   Check, 
   Copy, 
   CheckCircle, 
-  Settings, 
+  BookOpen, 
+  Cpu, 
   Database, 
-  Video, 
-  Cpu 
+  ShieldAlert,
+  ChevronRight,
+  Code,
+  Sparkles,
+  Info
 } from "lucide-react";
 
-const docCategories = [
+interface DocSection {
+  id: string;
+  title: string;
+  desc: string;
+  code?: {
+    kotlin: string;
+    java: string;
+  };
+  details?: string[];
+}
+
+interface DocCategory {
+  id: string;
+  name: string;
+  icon: React.ComponentType<any>;
+  sections: DocSection[];
+}
+
+const docData: DocCategory[] = [
   {
     id: "nckit",
-    name: "NCKit SDK Docs",
+    name: "NCKit Documentation",
     icon: Cpu,
-    versions: ["v1.0.0-beta3", "v1.0.0-beta1"],
     sections: [
       {
-        title: "Gradle Installation",
-        desc: "Add NCKit dependency to your module level gradle configuration.",
+        id: "installation",
+        title: "Installation Guide",
+        desc: "NCKit Android library bundles are hosted on Maven Central and our custom release repository. Register our Maven endpoint inside your project settings.",
         code: {
-          kotlin: `dependencies {\n    implementation("com.badri.nckit:audio-enhance:1.0.0-beta3")\n}`,
-          java: `dependencies {\n    implementation 'com.badri.nckit:audio-enhance:1.0.0-beta3'\n}`
-        }
+          kotlin: `// settings.gradle.kts
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+        maven { url = uri("https://maven.badritech.dev/releases") }
+    }
+}`,
+          java: `// settings.gradle
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral();
+        maven { url 'https://maven.badritech.dev/releases' }
+    }
+}`
+        },
+        details: [
+          "Requires Android API Level 26 (Android 8.0) or higher.",
+          "Supports ARMv7 and ARMv8 (64-bit) architectures.",
+          "Bundled native C++ libraries total less than 1.2 MB after compression."
+        ]
       },
       {
+        id: "gradle",
+        title: "Gradle Setup",
+        desc: "Add NCKit audio enhancement dependencies inside your app-level build gradle configuration file.",
+        code: {
+          kotlin: `// app/build.gradle.kts
+dependencies {
+    implementation("com.badri.nckit:audio-enhance:1.0.0-beta3")
+}`,
+          java: `// app/build.gradle
+dependencies {
+    implementation 'com.badri.nckit:audio-enhance:1.0.0-beta3'
+}`
+        },
+        details: [
+          "Ensure your project uses Gradle 8.0+ and Kotlin 1.9+.",
+          "No additional native dependencies are required; NCKit builds automatically link standard library binaries."
+        ]
+      },
+      {
+        id: "init",
         title: "Engine Initialization",
-        desc: "Initialize the NCKit audio engine with custom configs inside your Application class.",
+        desc: "Initialize NCKit audio processing engine inside your custom Application class prior to capturing microphone signals.",
         code: {
-          kotlin: `import com.badri.nckit.NCKitEngine\nimport com.badri.nckit.NoiseFilterConfig\n\nval config = NoiseFilterConfig.Builder()\n    .setNoiseSuppressionLevel(NoiseFilterConfig.Level.HIGH)\n    .enableVocalBoost(true)\n    .build()\n\nNCKitEngine.initialize(this, config)`,
-          java: `import com.badri.nckit.NCKitEngine;\nimport com.badri.nckit.NoiseFilterConfig;\n\nNoiseFilterConfig config = new NoiseFilterConfig.Builder()\n    .setNoiseSuppressionLevel(NoiseFilterConfig.Level.HIGH)\n    .enableVocalBoost(true)\n    .build();\n\nNCKitEngine.initialize(this, config);`
-        }
+          kotlin: `import com.badri.nckit.NCKitEngine
+import com.badri.nckit.NoiseFilterConfig
+
+class BGApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        
+        val config = NoiseFilterConfig.Builder()
+            .setNoiseSuppressionLevel(NoiseFilterConfig.Level.HIGH)
+            .enableVocalBoost(true)
+            .build()
+            
+        NCKitEngine.initialize(this, config)
+    }
+}`,
+          java: `import com.badri.nckit.NCKitEngine;
+import com.badri.nckit.NoiseFilterConfig;
+
+public class BGApplication extends Application {
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        
+        NoiseFilterConfig config = new NoiseFilterConfig.Builder()
+            .setNoiseSuppressionLevel(NoiseFilterConfig.Level.HIGH)
+            .enableVocalBoost(true)
+            .build();
+            
+        NCKitEngine.initialize(this, config);
+    }
+}`
+        },
+        details: [
+          "Vocal Boost EQ leverages bandpass filtration to improve vocal clarity.",
+          "Level configs range from LOW, MEDIUM to HIGH noise suppression ratios."
+        ]
       },
       {
-        title: "PCM Buffer Filtering",
-        desc: "Read raw PCM bytes, apply noise cancellation filters, and process the cleaned output buffer stream.",
+        id: "processing",
+        title: "Processing Flow",
+        desc: "Read raw PCM microphone byte frames and push them through the NCKit real-time stream filter loop in a background thread.",
         code: {
-          kotlin: `val streamFilter = NCKitEngine.createStreamFilter()\nstreamFilter.startProcessing(audioBuffer) { cleanedBytes ->\n    // Send cleaned output over network\n}`,
-          java: `StreamFilter streamFilter = NCKitEngine.createStreamFilter();\nstreamFilter.startProcessing(audioBuffer, new StreamFilterListener() {\n    @Override\n    public void onProcessed(byte[] cleanedBytes) {\n        // Send cleaned output over network\n    }\n});`
-        }
+          kotlin: `import com.badri.nckit.NCKitEngine
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
+val streamFilter = NCKitEngine.createStreamFilter()
+
+suspend fun processAudio(rawBytes: ByteArray) = withContext(Dispatchers.Default) {
+    streamFilter.startProcessing(rawBytes) { cleanedBytes ->
+        // Clean PCM audio buffers returned ready for transmission or playback
+        transmitAudioOverWebRTC(cleanedBytes)
+    }
+}`,
+          java: `import com.badri.nckit.NCKitEngine;
+import com.badri.nckit.StreamFilter;
+import com.badri.nckit.StreamFilterListener;
+
+StreamFilter streamFilter = NCKitEngine.createStreamFilter();
+
+public void processAudio(byte[] rawBytes) {
+    // Run on a separate background thread executor to prevent UI lags
+    audioExecutor.execute(() -> {
+        streamFilter.startProcessing(rawBytes, new StreamFilterListener() {
+            @Override
+            public void onProcessed(byte[] cleanedBytes) {
+                transmitAudioOverWebRTC(cleanedBytes);
+            }
+        });
+    });
+}`
+        },
+        details: [
+          "Processing latency is optimized to run under 15ms buffer delay.",
+          "PCM format supported: 16-bit Mono, sampling rate 48kHz recommended."
+        ]
+      },
+      {
+        id: "troubleshooting",
+        title: "Troubleshooting & Bugs",
+        desc: "Resolve native linking errors, CPU scheduler issues, or audio track micro-stutters.",
+        details: [
+          "UnsatisfiedLinkError: Ensure your gradle specifies 'ndk.abiFilters' containing 'arm64-v8a' and 'armeabi-v7a'. NCKit utilizes native shared libraries.",
+          "Micro-stutters: Verify you are NOT calling startProcessing on the Main thread. Always schedule audio rendering inside Default coroutine dispatchers or low-overhead thread executors.",
+          "High CPU usage: Reduce noise suppression levels from HIGH to MEDIUM if targeting low-end processors (MediaTek/Snapdragon 400 series)."
+        ]
       }
     ]
   },
@@ -52,207 +187,375 @@ const docCategories = [
     id: "publishersdk",
     name: "PublisherSDK Docs",
     icon: Database,
-    versions: ["v1.5.0", "v1.4.2"],
     sections: [
       {
-        title: "Add Attribution Dependency",
-        desc: "Register PublisherSDK attribution libraries inside your gradle compile dependencies.",
+        id: "installation",
+        title: "Dependency Installation",
+        desc: "Integrate PublisherSDK attribution and ad-tech metrics trackers within your dependencies block.",
         code: {
-          kotlin: `dependencies {\n    implementation("com.badri.publishersdk:attribution:1.5.0")\n}`,
-          java: `dependencies {\n    implementation 'com.badri.publishersdk:attribution:1.5.0'\n}`
+          kotlin: `// app/build.gradle.kts
+dependencies {
+    implementation("com.badri.publishersdk:attribution:1.5.0")
+}`,
+          java: `// app/build.gradle
+dependencies {
+    implementation 'com.badri.publishersdk:attribution:1.5.0'
+}`
         }
       },
       {
-        title: "Attribution Listener Setup",
-        desc: "Set app identifiers and dynamic referrer trackers.",
+        id: "analytics",
+        title: "Analytics Setup",
+        desc: "Initialize the PublisherSDK client with your unique App ID credentials.",
         code: {
-          kotlin: `import com.badri.publishersdk.PublisherClient\n\nPublisherClient.init(context, appId = "bg_labs_publish_9924") {\n    // Install attribution callback completed\n}`,
-          java: `import com.badri.publishersdk.PublisherClient;\nimport com.badri.publishersdk.AttributionCallback;\n\nPublisherClient.init(context, "bg_labs_publish_9924", new AttributionCallback() {\n    @Override\n    public void onComplete() {\n        // Install attribution callback completed\n    }\n});`
+          kotlin: `import com.badri.publishersdk.PublisherClient
+
+PublisherClient.init(
+    context = this,
+    appId = "badritech_publish_9924"
+)`,
+          java: `import com.badri.publishersdk.PublisherClient;
+
+PublisherClient.init(this, "badritech_publish_9924");`
+        }
+      },
+      {
+        id: "attribution",
+        title: "Attribution Tracking",
+        desc: "Setup attribution listeners to record Google Play install campaigns and verify tracking referrers.",
+        code: {
+          kotlin: `import com.badri.publishersdk.PublisherClient
+import com.badri.publishersdk.InstallListener
+
+PublisherClient.setInstallListener(object : InstallListener {
+    override fun onReferrerDetected(referrerUrl: String) {
+        // Log campaign referrer parameters to server
+        logCampaignReferrer(referrerUrl)
+    }
+})`,
+          java: `import com.badri.publishersdk.PublisherClient;
+import com.badri.publishersdk.InstallListener;
+
+PublisherClient.setInstallListener(new InstallListener() {
+    @Override
+    public void onReferrerDetected(String referrerUrl) {
+        logCampaignReferrer(referrerUrl);
+    }
+});`
+        }
+      },
+      {
+        id: "events",
+        title: "Event Handling",
+        desc: "Log offerwall completions, click impressions, and user surveys custom rewards hooks.",
+        code: {
+          kotlin: `import com.badri.publishersdk.PublisherClient
+
+// Log survey referral completion
+PublisherClient.logEvent("survey_complete", mapOf(
+    "survey_id" to "finance_questions_99",
+    "reward_amount" to 250
+))`,
+          java: `import com.badri.publishersdk.PublisherClient;
+import java.util.HashMap;
+import java.util.Map;
+
+Map<String, Object> params = new HashMap<>();
+params.put("survey_id", "finance_questions_99");
+params.put("reward_amount", 250);
+
+PublisherClient.logEvent("survey_complete", params);`
         }
       }
     ]
   },
   {
-    id: "truvideo",
-    name: "TruVideo SDK Integration",
-    icon: Video,
-    versions: ["v2.1", "v2.0"],
+    id: "bestpractices",
+    name: "Android Best Practices",
+    icon: ShieldAlert,
     sections: [
       {
-        title: "Camera Integration Setup",
-        desc: "Bind custom CameraX workflows to capture preview configurations.",
-        code: {
-          kotlin: `import com.badri.truvideo.TruCameraManager\n\nval cameraManager = TruCameraManager.Builder(context)\n    .enableStabilization(true)\n    .setResolution(TruCameraManager.Resolution.R_1080P)\n    .build()\n\ncameraManager.bindToLifecycle(lifecycleOwner)`,
-          java: `import com.badri.truvideo.TruCameraManager;\n\nTruCameraManager cameraManager = new TruCameraManager.Builder(context)\n    .enableStabilization(true)\n    .setResolution(TruCameraManager.Resolution.R_1080P)\n    .build();\n\ncameraManager.bindToLifecycle(lifecycleOwner);`
-        }
+        id: "memory",
+        title: "Memory Optimization",
+        desc: "Guidelines for managing native heap allocations, preventing memory leaks, and cleaning native C++ JNI pointers.",
+        details: [
+          "Always release native audio stream filters when lifecycle reaches onDestroy. Call NCKitEngine.releaseStream(streamFilter).",
+          "Ensure SQLite database connections are closed when operations finish or within content provider hooks.",
+          "Prevent context leaks inside SDK libraries. Always use context.applicationContext instead of holding Activity references."
+        ]
+      },
+      {
+        id: "background",
+        title: "Background Processing",
+        desc: "Configure robust background tasks utilizing Google's WorkManager, foreground services, and coroutine scopes.",
+        details: [
+          "Utilize WorkManager for offline analytics syncing. Configure NetworkType.CONNECTED constraints to preserve battery life.",
+          "Run long-running audio playback or stream capture tasks inside Android Foreground Services with matching media permissions.",
+          "Avoid using GlobalScope for network logs. Bind jobs to LifecycleOwner coroutine scopes or custom thread dispatchers."
+        ]
+      },
+      {
+        id: "media",
+        title: "Media Handling",
+        desc: "Handle ExoPlayer aspect ratios, audio focus transitions, and camera preview framing loops safely.",
+        details: [
+          "Binds CameraX session lifecycles to lifecycle owners using ProcessCameraProvider.getInstance(context).",
+          "Listen to AudioManager.OnAudioFocusChangeListener callbacks to pause recorders or dim playback audio when calls arrive.",
+          "Use MediaCodec buffers directly for video transcoding to optimize processing speeds on hardware codecs."
+        ]
       }
     ]
   }
 ];
 
-export default function DocumentationPage() {
-  const [selectedCat, setSelectedCat] = useState(docCategories[0]);
-  const [selectedVer, setSelectedVer] = useState(docCategories[0].versions[0]);
+function DocumentationContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const [selectedCatId, setSelectedCatId] = useState("nckit");
+  const [selectedSecId, setSelectedSecId] = useState("installation");
   const [selectedLang, setSelectedLang] = useState<"kotlin" | "java">("kotlin");
   const [searchQuery, setSearchQuery] = useState("");
-  const [copiedTextId, setCopiedTextId] = useState("");
+  const [copiedId, setCopiedId] = useState("");
 
-  const handleCopy = (code: string, id: string) => {
+  // Sync state from query parameters on load
+  useEffect(() => {
+    const cat = searchParams.get("cat");
+    const sec = searchParams.get("sec");
+    if (cat && docData.some(c => c.id === cat)) {
+      setSelectedCatId(cat);
+      const category = docData.find(c => c.id === cat)!;
+      if (sec && category.sections.some(s => s.id === sec)) {
+        setSelectedSecId(sec);
+      } else {
+        setSelectedSecId(category.sections[0].id);
+      }
+    }
+  }, [searchParams]);
+
+  const activeCategory = docData.find(c => c.id === selectedCatId) || docData[0];
+  const activeSection = activeCategory.sections.find(s => s.id === selectedSecId) || activeCategory.sections[0];
+
+  const handleCopy = (code: string) => {
     navigator.clipboard.writeText(code);
-    setCopiedTextId(id);
-    setTimeout(() => setCopiedTextId(""), 2000);
+    setCopiedId(activeSection.id);
+    setTimeout(() => setCopiedId(""), 2000);
   };
 
-  // Filter sections by search query
-  const filteredSections = selectedCat.sections.filter(sec => 
-    sec.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    sec.desc.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleSectionSelect = (catId: string, secId: string) => {
+    setSelectedCatId(catId);
+    setSelectedSecId(secId);
+    router.push(`/documentation?cat=${catId}&sec=${secId}`);
+  };
+
+  // Filter sidebar navigation items based on search query
+  const getFilteredCategories = () => {
+    if (!searchQuery.trim()) return docData;
+
+    return docData.map(cat => {
+      const matchingSections = cat.sections.filter(sec => 
+        sec.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        sec.desc.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      return {
+        ...cat,
+        sections: matchingSections
+      };
+    }).filter(cat => cat.sections.length > 0);
+  };
+
+  const filteredData = getFilteredCategories();
 
   return (
-    <div className="max-w-7xl mx-auto px-6 pt-32 pb-24 relative">
-      {/* Background radial glow */}
-      <div className="absolute top-10 left-10 w-96 h-96 rounded-full bg-primary/5 blur-3xl pointer-events-none" />
-
-      {/* Header */}
-      <div className="space-y-4 mb-12 text-center md:text-left">
-        <Link href="/" className="inline-flex items-center gap-2 text-xs font-semibold text-primary hover:underline group">
-          <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
-          <span>Back to Home</span>
-        </Link>
-        <h1 className="text-4xl font-extrabold text-foreground tracking-tight">Documentation Center</h1>
-        <p className="text-sm text-muted-foreground max-w-xl font-light">
-          Copy code configurations, read guides, and toggle language views for mobile product engines.
-        </p>
-      </div>
-
-      {/* Controls Bar: Search, Category Selector, Language Toggle, Version Selector */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center p-6 rounded-2xl border border-border bg-card/20 mb-8">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      {/* 1. Left Sidebar Navigation */}
+      <aside className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
         
-        {/* Search */}
-        <div className="md:col-span-4 relative">
+        {/* Sidebar Search Bar */}
+        <div className="relative">
           <Search className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search docs..."
+            placeholder="Search API guides..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-border bg-card/45 text-foreground placeholder:text-muted-foreground text-xs outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20"
           />
         </div>
 
-        {/* Tab Selection buttons */}
-        <div className="md:col-span-5 flex flex-wrap gap-2 justify-center md:justify-start">
-          {docCategories.map((cat) => {
-            const Icon = cat.icon;
-            const isCatActive = selectedCat.id === cat.id;
-            return (
-              <button
-                key={cat.id}
-                onClick={() => {
-                  setSelectedCat(cat);
-                  setSelectedVer(cat.versions[0]);
-                }}
-                className={`px-3.5 py-2 rounded-xl border text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${
-                  isCatActive 
-                    ? "border-primary/20 bg-primary/10 text-primary" 
-                    : "border-border bg-card/30 text-foreground/80 hover:bg-muted/40"
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                <span>{cat.name.split(" ")[0]}</span>
-              </button>
-            );
-          })}
-        </div>
+        {/* Categories Menu */}
+        <nav className="space-y-6">
+          {filteredData.length > 0 ? (
+            filteredData.map((cat) => {
+              const Icon = cat.icon;
+              return (
+                <div key={cat.id} className="space-y-2">
+                  <div className="flex items-center gap-2 px-3 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                    <Icon className="w-3.5 h-3.5 text-primary" />
+                    <span>{cat.name}</span>
+                  </div>
 
-        {/* Lang & Version Selectors */}
-        <div className="md:col-span-3 flex gap-3 justify-end">
-          {/* Kotlin / Java switcher */}
-          <div className="p-1 rounded-xl border border-border bg-card/35 flex gap-1 items-center">
-            {["kotlin", "java"].map((l) => (
-              <button
-                key={l}
-                onClick={() => setSelectedLang(l as "kotlin" | "java")}
-                className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase cursor-pointer transition-all ${
-                  selectedLang === l 
-                    ? "bg-primary text-primary-foreground shadow" 
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {l}
-              </button>
-            ))}
+                  <ul className="space-y-1 border-l border-border/60 ml-4.5 pl-3">
+                    {cat.sections.map((sec) => {
+                      const isActive = selectedCatId === cat.id && selectedSecId === sec.id;
+                      return (
+                        <li key={sec.id}>
+                          <button
+                            onClick={() => handleSectionSelect(cat.id, sec.id)}
+                            className={`w-full text-left py-1.5 px-2 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-between ${
+                              isActive
+                                ? "bg-primary/10 text-primary font-bold shadow-sm"
+                                : "text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            <span>{sec.title}</span>
+                            {isActive && <ChevronRight className="w-3 h-3 text-primary" />}
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              );
+            })
+          ) : (
+            <div className="p-4 text-center border border-dashed border-border rounded-xl text-xs text-muted-foreground font-light">
+              No documentation matches &quot;{searchQuery}&quot;
+            </div>
+          )}
+        </nav>
+
+      </aside>
+
+      {/* 2. Right Reader Panel */}
+      <main className="lg:col-span-8 p-8 rounded-3xl border border-border bg-card/25 glass-panel space-y-6 min-h-[580px] flex flex-col justify-between">
+        
+        <div className="space-y-6">
+          {/* Breadcrumbs */}
+          <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
+            <Link href="/documentation" className="hover:text-primary transition-colors">Documentation</Link>
+            <ChevronRight className="w-3 h-3" />
+            <span className="text-foreground">{activeCategory.name.split(" ")[0]}</span>
+            <ChevronRight className="w-3 h-3" />
+            <span className="text-primary">{activeSection.title}</span>
           </div>
 
-          {/* Version Selector */}
-          <select
-            value={selectedVer}
-            onChange={(e) => setSelectedVer(e.target.value)}
-            className="px-3 py-1.5 rounded-xl border border-border bg-card/35 text-xs text-foreground outline-none font-mono focus:border-primary/40 cursor-pointer"
-          >
-            {selectedCat.versions.map((v) => (
-              <option key={v} value={v}>{v}</option>
-            ))}
-          </select>
-        </div>
-
-      </div>
-
-      {/* Main Documentation view */}
-      <div className="space-y-8">
-        {filteredSections.length > 0 ? (
-          filteredSections.map((sec, idx) => {
-            const currentCode = selectedLang === "kotlin" ? sec.code.kotlin : sec.code.java;
-            const codeBlockId = `${selectedCat.id}_${idx}`;
-            return (
-              <div 
-                key={idx} 
-                className="p-8 rounded-3xl border border-border bg-card/10 glass-panel space-y-4"
-              >
-                <div className="space-y-1">
-                  <h3 className="text-lg font-bold text-foreground">{sec.title}</h3>
-                  <p className="text-xs text-muted-foreground font-light">{sec.desc}</p>
-                </div>
-
-                {/* Code Block Container */}
-                <div className="space-y-2 pt-2">
-                  <div className="flex justify-between items-center bg-muted/40 px-4 py-2.5 rounded-t-xl border-x border-t border-border/60">
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase flex items-center gap-1.5">
-                      <Terminal className="w-3.5 h-3.5 text-primary" />
-                      <span>{selectedLang} source code ({selectedVer})</span>
-                    </span>
-                    <button
-                      onClick={() => handleCopy(currentCode, codeBlockId)}
-                      className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-all cursor-pointer flex items-center gap-1 text-[10px]"
-                    >
-                      {copiedTextId === codeBlockId ? (
-                        <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
-                      ) : (
-                        <Copy className="w-3.5 h-3.5" />
-                      )}
-                      <span>{copiedTextId === codeBlockId ? "Copied" : "Copy Code"}</span>
-                    </button>
-                  </div>
-                  <div className="p-4 rounded-b-xl bg-zinc-950 border-x border-b border-border/60 overflow-x-auto">
-                    <pre className="text-[11px] font-mono text-zinc-300 leading-relaxed">
-                      <code>{currentCode}</code>
-                    </pre>
-                  </div>
-                </div>
-
+          {/* Section Header info */}
+          <div className="pb-5 border-b border-border/40 flex flex-wrap items-start justify-between gap-4">
+            <div className="space-y-1.5 max-w-xl">
+              <h2 className="text-2xl font-extrabold text-foreground tracking-tight">{activeSection.title}</h2>
+              <p className="text-xs sm:text-sm text-muted-foreground font-light leading-relaxed">{activeSection.desc}</p>
+            </div>
+            
+            {/* Java / Kotlin switcher if code exists */}
+            {activeSection.code && (
+              <div className="p-1 rounded-xl border border-border bg-zinc-950 flex gap-1 items-center">
+                {["kotlin", "java"].map((l) => (
+                  <button
+                    key={l}
+                    onClick={() => setSelectedLang(l as "kotlin" | "java")}
+                    className={`px-3 py-1.5 rounded-lg text-[10px] font-mono font-bold uppercase cursor-pointer transition-all ${
+                      selectedLang === l 
+                        ? "bg-primary text-primary-foreground shadow" 
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {l}
+                  </button>
+                ))}
               </div>
-            );
-          })
-        ) : (
-          <div className="p-16 text-center rounded-3xl border border-dashed border-border bg-card/5 space-y-2">
-            <Settings className="w-10 h-10 text-muted-foreground mx-auto animate-spin" />
-            <h3 className="text-sm font-bold text-foreground">No sections match your search query</h3>
-            <p className="text-xs text-muted-foreground font-light">Try searching for keywords like &apos;initialization&apos;, &apos;gradle&apos;, or &apos;buffer&apos;.</p>
+            )}
           </div>
-        )}
+
+          {/* Code block area */}
+          {activeSection.code && (
+            <div className="space-y-2 pt-2">
+              <div className="flex justify-between items-center bg-muted/40 px-4 py-2.5 rounded-t-xl border-x border-t border-border/60">
+                <span className="text-[10px] font-mono font-bold text-muted-foreground uppercase flex items-center gap-1.5">
+                  <Terminal className="w-3.5 h-3.5 text-primary" />
+                  <span>{selectedLang} SDK integration snippet</span>
+                </span>
+                <button
+                  onClick={() => handleCopy(selectedLang === "kotlin" ? activeSection.code!.kotlin : activeSection.code!.java)}
+                  className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-all cursor-pointer flex items-center gap-1 text-[10px]"
+                >
+                  {copiedId === activeSection.id ? (
+                    <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                  ) : (
+                    <Copy className="w-3.5 h-3.5" />
+                  )}
+                  <span>{copiedId === activeSection.id ? "Copied" : "Copy Code"}</span>
+                </button>
+              </div>
+              <div className="p-4 rounded-b-xl bg-zinc-950 border-x border-b border-border/60 overflow-x-auto">
+                <pre className="text-[11px] font-mono text-zinc-300 leading-relaxed">
+                  <code>{selectedLang === "kotlin" ? activeSection.code.kotlin : activeSection.code.java}</code>
+                </pre>
+              </div>
+            </div>
+          )}
+
+          {/* Additional details checklist if exists */}
+          {activeSection.details && (
+            <div className="space-y-3 pt-4 border-t border-border/40">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <span>Guidelines &amp; API Details</span>
+              </h3>
+              <div className="space-y-2 pl-4">
+                {activeSection.details.map((detail, idx) => (
+                  <div key={idx} className="text-xs text-muted-foreground font-light leading-relaxed list-item list-disc pl-1">
+                    {detail}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Prev / Next Page navigation hooks inside docs */}
+        <div className="border-t border-border/40 pt-6 mt-8 flex justify-between items-center gap-4 text-xs font-semibold">
+          <span className="text-muted-foreground/60 flex items-center gap-1">
+            <Info className="w-4 h-4 text-primary" />
+            <span>Target OS: Android Oreo+</span>
+          </span>
+          <Link
+            href="/contact"
+            className="text-primary hover:underline flex items-center gap-1 cursor-pointer"
+          >
+            <span>Need direct SDK support? Contact Us</span>
+            <ChevronRight className="w-4 h-4" />
+          </Link>
+        </div>
+
+      </main>
+
+    </div>
+  );
+}
+
+export default function DocumentationPage() {
+  return (
+    <div className="max-w-7xl mx-auto px-6 pt-32 pb-24 relative min-h-screen">
+      {/* Background radial spotlights */}
+      <div className="absolute top-10 left-10 w-96 h-96 bg-primary/5 blur-3xl pointer-events-none" />
+
+      {/* Header */}
+      <div className="space-y-4 mb-16 text-center md:text-left">
+        <Link href="/" className="inline-flex items-center gap-2 text-xs font-semibold text-primary hover:underline group">
+          <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
+          <span>Back to Home</span>
+        </Link>
+        <h1 className="text-4xl font-extrabold text-foreground tracking-tight">Developer Documentation</h1>
+        <p className="text-sm text-muted-foreground max-w-xl font-light">
+          Setup maven configurations, check initialization scopes, declare manifest permissions, and audit on-device audio memory profiles.
+        </p>
       </div>
 
+      <Suspense fallback={<div className="text-center py-12 text-xs text-muted-foreground">Loading documents...</div>}>
+        <DocumentationContent />
+      </Suspense>
     </div>
   );
 }

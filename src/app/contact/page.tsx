@@ -13,7 +13,9 @@ import {
   HelpCircle,
   MessageSquare,
   Briefcase,
-  GitBranch
+  GitBranch,
+  ShieldCheck,
+  Globe
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -49,7 +51,7 @@ const Linkedin = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 export default function ContactPage() {
-  const [formData, setFormData] = useState({ name: "", email: "", subject: "business", message: "" });
+  const [formData, setFormData] = useState({ name: "", email: "", subject: "sdk_support", message: "" });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -87,14 +89,13 @@ export default function ContactPage() {
     if (!validate()) return;
 
     setIsSubmitting(true);
-    // Simulate API request delay
     await new Promise((resolve) => setTimeout(resolve, 1200));
 
     setIsSubmitting(false);
     setIsSuccess(true);
-    setFormData({ name: "", email: "", subject: "business", message: "" });
+    setFormData({ name: "", email: "", subject: "sdk_support", message: "" });
 
-    // Success Confetti
+    // Confetti
     confetti({
       particleCount: 150,
       spread: 80,
@@ -104,7 +105,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 pt-32 pb-24 relative">
+    <div className="max-w-7xl mx-auto px-6 pt-32 pb-24 relative min-h-screen">
       {/* Background glow spot */}
       <div className="absolute top-10 left-10 w-96 h-96 bg-primary/5 blur-3xl pointer-events-none" />
 
@@ -114,105 +115,102 @@ export default function ContactPage() {
           <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
           <span>Back to Home</span>
         </Link>
-        <h1 className="text-4xl font-extrabold text-foreground tracking-tight">Contact Labs</h1>
+        <h1 className="text-4xl font-extrabold text-foreground tracking-tight">Contact &amp; Support Portal</h1>
         <p className="text-sm text-muted-foreground font-light max-w-xl">
-          Get support for PublisherSDK attribute campaigns, NCKit audio engine custom installations, or business inquiries.
+          Get developer integration support, verify API licenses, request custom compilations, or submit partnership inquiries.
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
         
-        {/* Left: Contact Info & Support Channels */}
+        {/* Left Column: Support Channels Categories */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="glass-panel p-6 rounded-2xl border border-border bg-card/10 space-y-5">
-            <h3 className="font-bold text-foreground text-sm uppercase tracking-wider">Contact Credentials</h3>
-            
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <div className="p-3 rounded-lg bg-primary/10 text-primary">
-                  <Mail className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-[10px] text-muted-foreground font-bold uppercase">EMAIL</div>
-                  <a href="mailto:badrigautam333@gmail.com" className="text-sm font-semibold text-foreground hover:text-primary transition-colors">
-                    badrigautam333@gmail.com
-                  </a>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <div className="p-3 rounded-lg bg-primary/10 text-primary">
-                  <Phone className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-[10px] text-muted-foreground font-bold uppercase">PHONE</div>
-                  <a href="tel:+916260966455" className="text-sm font-semibold text-foreground hover:text-primary transition-colors">
-                    +91 6260966455
-                  </a>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <div className="p-3 rounded-lg bg-primary/10 text-primary">
-                  <MapPin className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-[10px] text-muted-foreground font-bold uppercase">LOCATION</div>
-                  <div className="text-sm font-semibold text-foreground">
-                    Bengaluru, India
-                  </div>
-                </div>
-              </div>
+          
+          {/* Business Contact Channel */}
+          <div className="p-6 rounded-2xl border border-border bg-card/10 space-y-3 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 blur-xl group-hover:bg-primary/10 transition-all pointer-events-none" />
+            <div className="flex items-center gap-2">
+              <Briefcase className="w-4.5 h-4.5 text-primary" />
+              <h3 className="font-bold text-foreground text-sm uppercase tracking-wider">Business Contacts</h3>
             </div>
-
-            <div className="flex items-center gap-3 pt-4 border-t border-border/40">
-              <a
-                href="https://www.linkedin.com/in/badri-gautam"
-                target="_blank"
-                rel="noreferrer"
-                className="p-2.5 rounded-lg border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-all cursor-pointer"
-                aria-label="LinkedIn"
-              >
-                <Linkedin className="w-4.5 h-4.5" />
-              </a>
-              <a
-                href="https://github.com"
-                target="_blank"
-                rel="noreferrer"
-                className="p-2.5 rounded-lg border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-all cursor-pointer"
-                aria-label="GitHub"
-              >
-                <Github className="w-4.5 h-4.5" />
-              </a>
+            <p className="text-xs text-muted-foreground font-light leading-relaxed">
+              Inquire about technology partnerships, consulting agreements, or licensing our on-device noise cancellation models.
+            </p>
+            <div className="space-y-2 pt-2 text-xs font-mono">
+              <div className="flex items-center gap-2">
+                <Mail className="w-3.5 h-3.5 text-primary" />
+                <a href="mailto:badrigautam333@gmail.com" className="text-muted-foreground hover:text-foreground">badrigautam333@gmail.com</a>
+              </div>
+              <div className="flex items-center gap-2">
+                <Globe className="w-3.5 h-3.5 text-primary" />
+                <span>Bengaluru, India</span>
+              </div>
             </div>
           </div>
 
-          {/* Support Channels Grid */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 rounded-xl border border-border bg-card/5 space-y-1.5">
-              <Briefcase className="w-4 h-4 text-primary" />
-              <h4 className="text-xs font-bold text-foreground">Business Inquiries</h4>
-              <p className="text-[10px] text-muted-foreground font-light leading-relaxed">For product licensing, custom pricing, and integrations.</p>
+          {/* Technical Support Channel */}
+          <div className="p-6 rounded-2xl border border-border bg-card/10 space-y-3 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 blur-xl group-hover:bg-cyan-500/10 transition-all pointer-events-none" />
+            <div className="flex items-center gap-2">
+              <GitBranch className="w-4.5 h-4.5 text-cyan-400" />
+              <h3 className="font-bold text-foreground text-sm uppercase tracking-wider">Technical Support</h3>
             </div>
-            <div className="p-4 rounded-xl border border-border bg-card/5 space-y-1.5">
-              <HelpCircle className="w-4 h-4 text-cyan-400" />
-              <h4 className="text-xs font-bold text-foreground">Technical Support</h4>
-              <p className="text-[10px] text-muted-foreground font-light leading-relaxed">JNI linking bugs, attribution issues, or compatibility diagnostics.</p>
-            </div>
-            <div className="p-4 rounded-xl border border-border bg-card/5 space-y-1.5">
-              <MessageSquare className="w-4 h-4 text-emerald-400" />
-              <h4 className="text-xs font-bold text-foreground">Collaboration</h4>
-              <p className="text-[10px] text-muted-foreground font-light leading-relaxed">SDK tool integration partnerships and Android R&amp;D.</p>
-            </div>
-            <div className="p-4 rounded-xl border border-border bg-card/5 space-y-1.5">
-              <GitBranch className="w-4 h-4 text-violet-400" />
-              <h4 className="text-xs font-bold text-foreground">SDK Support</h4>
-              <p className="text-[10px] text-muted-foreground font-light leading-relaxed">Attribution telemetry configurations and Maven setup packages.</p>
+            <p className="text-xs text-muted-foreground font-light leading-relaxed">
+              Request integration audits, troubleshoot native compiler JNI linkage logs, submit bug reports, or request SDK features.
+            </p>
+            <div className="flex flex-wrap gap-2 pt-2">
+              {["SDK Support", "Integration Help", "Bug Reports", "Feature Requests"].map(badge => (
+                <span key={badge} className="text-[9px] font-bold px-2.5 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 font-mono">
+                  {badge}
+                </span>
+              ))}
             </div>
           </div>
+
+          {/* Enterprise Inquiries Channel */}
+          <div className="p-6 rounded-2xl border border-border bg-card/10 space-y-3 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-violet-500/5 blur-xl group-hover:bg-violet-500/10 transition-all pointer-events-none" />
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-4.5 h-4.5 text-violet-400" />
+              <h3 className="font-bold text-foreground text-sm uppercase tracking-wider">Enterprise Inquiries</h3>
+            </div>
+            <p className="text-xs text-muted-foreground font-light leading-relaxed">
+              Custom integrations, consulting frameworks, and enterprise scaling agreements for high-overhead camera and audio capture services.
+            </p>
+            <div className="flex flex-wrap gap-2 pt-2">
+              {["Custom Integrations", "Consulting", "Partnerships"].map(badge => (
+                <span key={badge} className="text-[9px] font-bold px-2.5 py-0.5 rounded bg-violet-500/10 border border-violet-500/20 text-violet-400 font-mono">
+                  {badge}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Social Links */}
+          <div className="flex items-center gap-3 pt-2">
+            <a
+              href="https://www.linkedin.com/in/badri-gautam"
+              target="_blank"
+              rel="noreferrer"
+              className="p-3 rounded-xl border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+              aria-label="LinkedIn"
+            >
+              <Linkedin className="w-4 h-4" />
+            </a>
+            <a
+              href="https://github.com"
+              target="_blank"
+              rel="noreferrer"
+              className="p-3 rounded-xl border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+              aria-label="GitHub"
+            >
+              <Github className="w-4 h-4" />
+            </a>
+          </div>
+
         </div>
 
-        {/* Right: Interactive Support Contact Form */}
+        {/* Right Column: Support Form */}
         <div className="lg:col-span-7">
           <div className="glass-panel p-8 rounded-3xl border border-border bg-card/10 shadow-sm relative">
             {!isSuccess ? (
@@ -268,12 +266,13 @@ export default function ContactPage() {
                     name="subject"
                     value={formData.subject}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground text-xs outline-none focus:border-primary cursor-pointer"
+                    className="w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground text-xs outline-none focus:border-primary cursor-pointer font-semibold text-foreground"
                   >
-                    <option value="business">Business Inquiry / Licensing</option>
-                    <option value="tech_nckit">Technical Support: NCKit SDK</option>
-                    <option value="tech_publisher">Technical Support: PublisherSDK</option>
-                    <option value="collab">Project Collaboration / Custom SDKs</option>
+                    <option value="sdk_support">SDK Support &amp; Integration Help</option>
+                    <option value="bug_report">Bug Report Submission</option>
+                    <option value="feature_request">SDK Feature Request</option>
+                    <option value="business">Business Inquiry &amp; Partnerships</option>
+                    <option value="consulting">Enterprise Custom Integrations</option>
                   </select>
                 </div>
 
@@ -291,7 +290,7 @@ export default function ContactPage() {
                     className={`w-full px-4 py-3 rounded-xl border bg-card text-foreground text-xs outline-none transition-all focus:ring-1 focus:ring-primary/20 resize-none ${
                       errors.message ? "border-red-500/80 focus:border-red-500" : "border-border focus:border-primary"
                     }`}
-                    placeholder="Provide details about your target integrations, platforms, or questions..."
+                    placeholder="Describe your target app setup, Android versions, compiled errors, or questions..."
                   />
                   {errors.message && <p className="text-[10px] text-red-500 font-semibold">{errors.message}</p>}
                 </div>
@@ -305,7 +304,7 @@ export default function ContactPage() {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Sending Support Ticket...</span>
+                      <span>Submitting Request...</span>
                     </>
                   ) : (
                     <>
@@ -318,9 +317,9 @@ export default function ContactPage() {
             ) : (
               <div className="py-12 flex flex-col items-center justify-center text-center space-y-4">
                 <CheckCircle className="w-16 h-16 text-emerald-500" />
-                <h3 className="font-display text-2xl font-bold text-foreground">Support Ticket Submitted!</h3>
+                <h3 className="font-display text-2xl font-bold text-foreground">Support Ticket Logged</h3>
                 <p className="text-xs text-muted-foreground max-w-sm font-light">
-                  Thank you for reaching out. We have logged your request and our technical support team will respond within 12 hours.
+                  Thank you. Your request has been cached. Our technical support engineers will reply to your registered email address within 12 hours.
                 </p>
                 <button
                   onClick={() => setIsSuccess(false)}

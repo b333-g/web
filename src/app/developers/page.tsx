@@ -91,7 +91,7 @@ export default function DevelopersPage() {
             {/* 1. QUICK START */}
             {activeSection === "quickstart" && (
               <div className="space-y-4">
-                <h2 className="text-xl font-bold text-foreground">Getting Started with Badri Gautam Labs SDKs</h2>
+                <h2 className="text-xl font-bold text-foreground">Getting Started with BadriTech SDKs</h2>
                 <p className="text-xs sm:text-sm text-muted-foreground font-light leading-relaxed">
                   Our library bundles are hosted on Maven Central. To fetch active builds, register our repository config path inside your project level `settings.gradle` configurations, then declare dependencies.
                 </p>
@@ -100,7 +100,7 @@ export default function DevelopersPage() {
                   <div className="flex justify-between items-center text-xs font-bold text-muted-foreground uppercase">
                     <span>1. Register Maven Repository</span>
                     <button 
-                      onClick={() => handleCopy("mavenCentral()\nmaven { url 'https://maven.bg-labs.dev/releases' }", "repo")}
+                      onClick={() => handleCopy("mavenCentral()\nmaven { url 'https://maven.badritech.dev/releases' }", "repo")}
                       className="text-[10px] text-primary hover:underline flex items-center gap-1"
                     >
                       {copiedText === "repo" ? <CheckCircle className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
@@ -111,7 +111,7 @@ export default function DevelopersPage() {
                     dependencyResolutionManagement &#123;<br />
                     &nbsp;&nbsp;repositories &#123;<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;mavenCentral()<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;maven &#123; url &apos;https://maven.bg-labs.dev/releases&apos; &#125;<br />
+                    &nbsp;&nbsp;&nbsp;&nbsp;maven &#123; url &apos;https://maven.badritech.dev/releases&apos; &#125;<br />
                     &nbsp;&nbsp;&#125;<br />
                     &#125;
                   </div>

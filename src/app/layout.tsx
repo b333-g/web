@@ -16,11 +16,11 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Badri Gautam Labs | Mobile Products, SDKs & Developer Platform",
+  title: "BadriTech Platform | Android Products, SDKs & Developer Ecosystem",
   description: "Official developer platform for enterprise-grade Android applications, developer SDKs, media processing tools, camera solutions, and AI-powered audio enhancement platforms.",
   keywords: [
-    "Badri Gautam Labs",
-    "BG Mobile Labs",
+    "BadriTech",
+    "BadriTech SDK",
     "NCKit Noise Cancellation SDK",
     "PublisherSDK",
     "Android SDK Development",
@@ -32,10 +32,15 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Badri Prasad Gautam" }],
   openGraph: {
-    title: "Badri Gautam Labs | Mobile Products, SDKs & Developer Platform",
+    title: "BadriTech Platform | Android Products, SDKs & Developer Ecosystem",
     description: "Official developer platform for enterprise-grade Android applications, developer SDKs, media processing tools, camera solutions, and AI-powered audio enhancement platforms.",
     type: "website",
     locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BadriTech Platform | Android Products, SDKs & Developer Ecosystem",
+    description: "Official developer platform for enterprise-grade Android applications, developer SDKs, media processing tools, camera solutions, and AI-powered audio enhancement platforms.",
   }
 };
 

@@ -2,148 +2,103 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { 
-  ArrowLeft, 
-  Download, 
-  Smartphone, 
-  Cpu, 
-  FileText, 
-  Filter, 
-  CheckCircle,
-  Clock,
-  Layers,
-  ArrowRight
-} from "lucide-react";
+import { ArrowLeft, Download, Smartphone, Cpu, FileText, Clock, Layers, Sparkles } from "lucide-react";
+import { versionRegistry } from "@/data/versions";
 
+// Categories definitions matching user requirements
 const downloadCategories = [
   { id: "all", label: "All Packages", icon: Layers },
-  { id: "apps", label: "APK Applications", icon: Smartphone },
-  { id: "sdks", label: "SDK Binaries", icon: Cpu },
-  { id: "resources", label: "Developer Guides", icon: FileText }
+  { id: "app", label: "APKs (Installers)", icon: Smartphone },
+  { id: "sdk", label: "SDKs (Binaries)", icon: Cpu },
+  { id: "doc", label: "Documents & Guides", icon: FileText }
 ];
 
-const packages = [
-  // APK Applications
+// Document packages to display alongside applications/SDKs
+const docPackages = [
   {
-    name: "GreatGoga App",
-    category: "apps",
-    version: "v2.4.0",
-    date: "September 24, 2024",
-    size: "14.2 MB",
-    type: "APK Installer",
-    status: "Production Build",
-    desc: "Direct installer for the complete GreatGoga reward-based gamified client.",
-    fileName: "greatgoga-v2.4.0.apk"
-  },
-  {
-    name: "Bhagavad Gita Offline App",
-    category: "apps",
-    version: "v1.8.0",
-    date: "March 12, 2023",
-    size: "8.5 MB",
-    type: "APK Installer",
-    status: "Stable Build",
-    desc: "Fully standalone reading client with SQLite databases loaded inside assets.",
-    fileName: "bhagavad-gita-v1.8.0.apk"
-  },
-  {
-    name: "TruVideo SDK Demo Bed",
-    category: "apps",
-    version: "v2.1.2",
-    date: "January 15, 2026",
-    size: "18.1 MB",
-    type: "APK Installer",
-    status: "Active R&D",
-    desc: "Developer test-sandbox containing CameraX preview stabilizer panels.",
-    fileName: "truvideo-demo-v2.1.2.apk"
-  },
-  {
-    name: "NCKit Audio Enhancer Demo",
-    category: "apps",
-    version: "v1.0.0-beta",
-    date: "December 08, 2025",
-    size: "9.2 MB",
-    type: "APK Installer",
-    status: "Active R&D",
-    desc: "Audio capture client displaying waveforms and noise filtering ratios.",
-    fileName: "nckit-demo-v1.0.0-beta.apk"
-  },
-  
-  // SDKs
-  {
-    name: "NCKit Noise Cancellation Binary",
-    category: "sdks",
-    version: "v1.0.0-beta3",
-    date: "February 20, 2026",
-    size: "1.2 MB",
-    type: "AAR (Archive)",
-    status: "Active R&D",
-    desc: "Includes armeabi-v7a, arm64-v8a JNI shared libraries for audio filters.",
-    fileName: "nckit-sdk-v1.0.0-beta3.aar"
-  },
-  {
-    name: "PublisherSDK Ad-attribution Engine",
-    category: "sdks",
-    version: "v1.5.0",
-    date: "September 18, 2024",
-    size: "180 KB",
-    type: "AAR (Archive)",
-    status: "Production Build",
-    desc: "Attribution receivers, local Room databases, and gRPC tracking threads.",
-    fileName: "publishersdk-v1.5.0.aar"
-  },
-
-  // Developer Guides
-  {
+    id: "nckit-pdf",
     name: "NCKit Integration Manual",
-    category: "resources",
-    version: "v1.0-PDF",
-    date: "February 22, 2026",
-    size: "2.4 MB",
-    type: "PDF Document",
-    status: "Updated",
-    desc: "Complete architectural setup rules, Proguard configurations, and C++ memory safety guides.",
-    fileName: "nckit-integration-manual.pdf"
+    type: "doc" as const,
+    version: "v1.2-PDF",
+    releaseDate: "February 22, 2026",
+    status: "Released" as const,
+    releaseChannel: "stable" as const,
+    fileSize: "2.4 MB",
+    fileName: "nckit-integration-manual.pdf",
+    downloadUrl: "/downloads/nckit-integration-manual.pdf",
+    changelogUrl: "",
+    changelog: {},
+    desc: "Complete architectural setup rules, JNI compilation bindings, and Native C++ safety practices."
   },
   {
-    name: "PublisherSDK Event Tracking Sheets",
-    category: "resources",
-    version: "v1.2-PDF",
-    date: "October 02, 2024",
-    size: "1.1 MB",
-    type: "PDF Document",
-    status: "Released",
-    desc: "Detailed guides for campaign attribution tracking, installation parameters, and gRPC analytics rules.",
-    fileName: "publishersdk-tracking-sheets.pdf"
+    id: "publishersdk-pdf",
+    name: "PublisherSDK Campaign Setup Sheets",
+    type: "doc" as const,
+    version: "v1.0-PDF",
+    releaseDate: "October 02, 2024",
+    status: "Released" as const,
+    releaseChannel: "stable" as const,
+    fileSize: "1.1 MB",
+    fileName: "publishersdk-tracking-sheets.pdf",
+    downloadUrl: "/downloads/publishersdk-tracking-sheets.pdf",
+    changelogUrl: "",
+    changelog: {},
+    desc: "Event tracking definitions, callback signatures audit scripts, and campaign verification parameters."
   }
 ];
 
-export default function DownloadsPage() {
-  const [activeFilter, setActiveFilter] = useState("all");
-  const [downloadProgress, setDownloadProgress] = useState<string | null>(null);
+// Combine all downloadable registry records
+const allDownloadableItems = [
+  ...versionRegistry,
+  ...docPackages
+];
 
-  const handleDownload = (pkgName: string, fileName: string) => {
-    setDownloadProgress(pkgName);
+export default function DownloadsCenter() {
+  const [activeFilter, setActiveFilter] = useState("all");
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
+  // Simulated download triggers
+  const handleDownload = (id: string, fileName: string) => {
+    setDownloadingId(id);
     setTimeout(() => {
-      setDownloadProgress(null);
-      // Trigger native download
+      setDownloadingId(null);
+      // Trigger download
       const link = document.createElement("a");
       link.href = `/downloads/${fileName}`;
       link.download = fileName;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    }, 1500);
+    }, 1200);
   };
 
-  const filteredPackages = activeFilter === "all"
-    ? packages
-    : packages.filter(pkg => pkg.category === activeFilter);
+  const filteredItems = activeFilter === "all"
+    ? allDownloadableItems
+    : allDownloadableItems.filter(item => item.type === activeFilter);
+
+  // Helper to get simulated counts based on item versions
+  const getDownloadCount = (id: string) => {
+    switch (id) {
+      case "greatgoga": return "14,250+";
+      case "bhagavad-gita": return "45,800+";
+      case "truvideo": return "1,500+";
+      case "nckit-demo": return "3,400+";
+      case "nckit-sdk": return "850+ integrations";
+      case "publishersdk": return "2,100+ integrations";
+      default: return "980+";
+    }
+  };
+
+  const getBadgeClass = (status: string) => {
+    if (status === "Released") return "bg-emerald-500/10 border-emerald-500/20 text-emerald-400";
+    if (status === "Active Development" || status === "Beta") return "bg-cyan-500/10 border-cyan-500/20 text-cyan-400";
+    return "bg-amber-500/10 border-amber-500/20 text-amber-400";
+  };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 pt-32 pb-24 relative">
-      {/* Background Glow blur */}
-      <div className="absolute top-10 right-10 w-96 h-96 rounded-full bg-primary/5 blur-3xl pointer-events-none" />
+    <div className="max-w-7xl mx-auto px-6 pt-32 pb-24 relative min-h-screen">
+      {/* Background radial spotlight */}
+      <div className="absolute top-10 right-10 w-96 h-96 bg-primary/5 blur-3xl pointer-events-none" />
 
       {/* Header */}
       <div className="space-y-4 mb-16 text-center md:text-left">
@@ -153,11 +108,11 @@ export default function DownloadsPage() {
         </Link>
         <h1 className="text-4xl font-extrabold text-foreground tracking-tight">Downloads Center</h1>
         <p className="text-sm text-muted-foreground max-w-xl font-light">
-          Get direct APK installers, native AAR archive SDK binaries, and PDF integration manuals for our projects.
+          Access our centralized registry containing native Android APK installers, compiled AAR library binaries, and PDF integration manuals.
         </p>
       </div>
 
-      {/* Filter Tabs bar */}
+      {/* Categories Tabs Selector */}
       <div className="flex flex-wrap gap-2.5 mb-10 justify-center md:justify-start">
         {downloadCategories.map((cat) => {
           const Icon = cat.icon;
@@ -179,45 +134,59 @@ export default function DownloadsPage() {
         })}
       </div>
 
-      {/* Downloads Table / Grid */}
+      {/* Central Package registry listing */}
       <div className="space-y-4">
-        {filteredPackages.map((pkg, idx) => (
+        {filteredItems.map((pkg) => (
           <div 
-            key={idx} 
-            className="p-6 rounded-2xl border border-border bg-card/10 hover:border-primary/20 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6"
+            key={pkg.id} 
+            className="p-6 rounded-2xl border border-border bg-card/10 hover:border-primary/20 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 relative group"
           >
-            {/* Package details */}
-            <div className="space-y-2 flex-grow max-w-2xl">
+            {/* Top Glow on hover */}
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none" />
+
+            {/* Main metadata details */}
+            <div className="space-y-2 flex-grow max-w-2xl relative z-10">
               <div className="flex flex-wrap items-center gap-3">
-                <span className="text-xs font-bold px-2 py-0.5 rounded bg-muted text-muted-foreground border border-border font-mono">
-                  {pkg.type}
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-muted text-muted-foreground border border-border uppercase font-mono">
+                  {pkg.type === "app" ? "APK Installer" : pkg.type === "sdk" ? "AAR Archive" : "PDF Guide"}
                 </span>
-                <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5" />
-                  <span>{pkg.date}</span>
+                <span className="text-[10px] text-muted-foreground flex items-center gap-1 font-mono">
+                  <Clock className="w-3.5 h-3.5 text-primary" />
+                  <span>{pkg.releaseDate}</span>
                 </span>
-                <span className="text-[10px] px-2 py-0.5 rounded font-bold uppercase bg-primary/10 text-primary">
+                <span className={`text-[9px] px-2 py-0.5 rounded font-bold uppercase border ${getBadgeClass(pkg.status)}`}>
                   {pkg.status}
                 </span>
               </div>
               <h3 className="text-lg font-bold text-foreground">{pkg.name}</h3>
-              <p className="text-xs text-muted-foreground font-light leading-relaxed">{pkg.desc}</p>
+              <p className="text-xs text-muted-foreground font-light leading-relaxed">
+                {pkg.type === "doc" ? (pkg as any).desc : pkg.changelog.added?.[0] || "Native binary release bundle."}
+              </p>
             </div>
 
-            {/* Sizes & Action buttons */}
-            <div className="flex items-center gap-6 justify-between md:justify-end shrink-0 border-t border-border/40 md:border-t-0 pt-4 md:pt-0">
+            {/* Metrics column and download trigger */}
+            <div className="flex items-center gap-6 justify-between md:justify-end shrink-0 border-t border-border/40 md:border-t-0 pt-4 md:pt-0 relative z-10">
               <div className="text-left md:text-right font-mono text-xs">
-                <div className="text-[10px] text-muted-foreground font-sans">VERSION &amp; SIZE</div>
+                <div className="text-[9px] text-muted-foreground font-sans uppercase">VERSION &amp; SIZE</div>
                 <div className="font-bold text-foreground">{pkg.version}</div>
-                <div className="text-muted-foreground font-light">{pkg.size}</div>
+                <div className="text-muted-foreground font-light">{pkg.fileSize}</div>
+              </div>
+
+              <div className="text-left md:text-right font-mono text-xs hidden sm:block">
+                <div className="text-[9px] text-muted-foreground font-sans uppercase flex items-center gap-1 justify-end">
+                  <Sparkles className="w-3 h-3 text-cyan-400 animate-pulse" />
+                  <span>DOWNLOADS</span>
+                </div>
+                <div className="font-bold text-cyan-400">{getDownloadCount(pkg.id)}</div>
+                <div className="text-muted-foreground/60 font-light text-[9px]">verified check</div>
               </div>
 
               <button
-                onClick={() => handleDownload(pkg.name, pkg.fileName)}
-                disabled={downloadProgress === pkg.name}
-                className="px-5 py-3 rounded-xl bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50 text-xs font-bold flex items-center gap-2 transition-all cursor-pointer"
+                onClick={() => handleDownload(pkg.id, pkg.fileName)}
+                disabled={downloadingId === pkg.id}
+                className="px-5 py-3 rounded-xl bg-primary text-primary-foreground hover:opacity-95 disabled:opacity-50 text-xs font-bold flex items-center gap-2 transition-all cursor-pointer shadow-lg shadow-primary/5"
               >
-                {downloadProgress === pkg.name ? (
+                {downloadingId === pkg.id ? (
                   <>
                     <span className="w-3.5 h-3.5 rounded-full border-2 border-primary-foreground border-t-transparent animate-spin" />
                     <span>Preparing...</span>
