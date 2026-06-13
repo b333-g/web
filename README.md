@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Badri Gautam - Android Developer Portfolio
 
-## Getting Started
+A modern, high-fidelity developer portfolio website for **Badri Gautam (Android Developer)** built with Next.js 16 (App Router), React 19, Tailwind CSS v4, and Framer Motion. 
 
-First, run the development server:
+The website styling takes inspiration from Apple, Linear, and Vercel dark aesthetics: pitch-black backgrounds, crisp thin borders, glowing cyan and violet spotlights, and responsive glassmorphic cards.
 
+## 🚀 Key Features
+
+*   **Multi-Page Routing**: Independent sub-pages for `/`, `/about`, `/projects`, and `/contact` utilizing Next.js App Router for optimal SEO structure and rapid client-side transitions.
+*   **Animated Headline Typing**: A custom, light-weight client typewriter hook (`TypingEffect.tsx`) to animate developer keywords on the landing fold.
+*   **Detailed Experience Timeline**: Shows professional timeline roles at *5Exceptions Software Solutions Pvt Ltd* and *Underscore Technology Private Limited*.
+*   **Interactive Projects Grid**: Highlights 5 customized Android applications and SDK products featuring media streaming, local databases, and AI assistance, alongside dynamic category filters.
+*   **GitHub Contribution Activity Graph**: A beautiful, custom simulated green commits grid showing contribution counts, active streaks, and interactive hover tooltip analytics.
+*   **Validated Contact Form**: Custom floating forms with input format checks, a loading spinner submission state, and a celebratory `canvas-confetti` canvas blast.
+*   **Downloadable Resume**: A clean PDF download link under `/resume.pdf`.
+
+---
+
+## 🛠️ Getting Started
+
+### 1. Installation
+Clone the repository and install the project dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Run the Development Server
+Launch the local Hot Module Reload server:
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) with your browser to preview the live application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Build for Production
+Verify typescript compilation and generate the optimized build bundle:
+```bash
+npm run build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## ☁️ Deployment on Vercel
 
-To learn more about Next.js, take a look at the following resources:
+The easiest way to deploy this Next.js application is via the [Vercel Platform](https://vercel.com/new):
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Push your code repository to GitHub, GitLab, or Bitbucket.
+2. Import the repository into your Vercel Dashboard.
+3. Vercel will automatically detect **Next.js** settings.
+4. Click **Deploy**. Vercel will handle compilation, static page generation, and global CDN provisioning.
